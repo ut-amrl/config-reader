@@ -49,7 +49,7 @@ namespace config_reader {
 // Define constants
 static const std::string kDefaultFileName = "config.lua";
 
-#define MAKE_NAME(name) cfg_##name
+#define MAKE_NAME(name) name
 
 // Define macros for creating new config vars
 
