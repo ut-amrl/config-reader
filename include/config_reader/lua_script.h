@@ -28,18 +28,16 @@
 #include <vector>
 
 extern "C" {
-#include "lua5.1/lauxlib.h"
-#include "lua5.1/lua.h"
-#include "lua5.1/lualib.h"
+#include "lua5.3/lauxlib.h"
+#include "lua5.3/lua.h"
+#include "lua5.3/lualib.h"
 }
 
 namespace config_reader {
 class LuaScript {
   lua_State* lua_state_;
 
-  void ResetStack(lua_State* lua_state) const {
-    lua_pop(lua_state, lua_gettop(lua_state));
-  }
+  void ResetStack() { lua_pop(lua_state_, lua_gettop(lua_state_)); }
 
   void Error(const std::string& variable_name,
              const std::string& reason) const {
@@ -47,19 +45,18 @@ class LuaScript {
               << std::endl;
   }
 
-  bool LoadStackLocation(lua_State* lua_state,
-                         const std::string& variable_name) const {
+  bool LoadStackLocation(const std::string& variable_name) {
     int level = 0;
     std::string var = "";
     for (size_t i = 0; i < variable_name.size(); i++) {
       if (variable_name.at(i) == '.') {
         if (level == 0) {
-          lua_getglobal(lua_state, var.c_str());
+          lua_getglobal(lua_state_, var.c_str());
         } else {
-          lua_getfield(lua_state, -1, var.c_str());
+          lua_getfield(lua_state_, -1, var.c_str());
         }
 
-        if (lua_isnil(lua_state, -1)) {
+        if (lua_isnil(lua_state_, -1)) {
           Error(variable_name, var + " is not defined");
           return false;
         } else {
@@ -71,11 +68,11 @@ class LuaScript {
       }
     }
     if (level == 0) {
-      lua_getglobal(lua_state, var.c_str());
+      lua_getglobal(lua_state_, var.c_str());
     } else {
-      lua_getfield(lua_state, -1, var.c_str());
+      lua_getfield(lua_state_, -1, var.c_str());
     }
-    if (lua_isnil(lua_state, -1)) {
+    if (lua_isnil(lua_state_, -1)) {
       Error(variable_name, var + " is not defined");
       return false;
     }
@@ -85,13 +82,18 @@ class LuaScript {
 
   // Generic get
   template <typename T>
-  T Get(lua_State* lua_state, const std::string& variable_name) const {
+  T Get(const std::string& variable_name) {
     return 0;
   }
 
   template <typename T>
-  T GetDefault() const {
+  T GetDefault() {
     return 0;
+  }
+
+  void CleanupLuaState() {
+    lua_close(lua_state_);
+    lua_state_ = nullptr;
   }
 
  public:
@@ -104,102 +106,97 @@ class LuaScript {
         std::cout << "Error: failed to load (" << filename << ")" << std::endl;
         std::cout << "Error Message: " << lua_tostring(lua_state_, -1)
                   << std::endl;
-        lua_state_ = nullptr;
+        CleanupLuaState();
+        break;
       }
     }
   }
 
+  ~LuaScript() { CleanupLuaState(); }
+
   template <typename T>
-  T GetVariable(const std::string& variable_name) const {
+  T GetVariable(const std::string& variable_name) {
     if (lua_state_ == nullptr) {
       Error(variable_name, "Script is not loaded");
       return GetDefault<T>();
     }
 
-    // Strips away const qualifier on lua_state_. This is done to allow for
-    // interacting with the C API while still presenting as const to end user.
-    lua_State* lua_state = reinterpret_cast<lua_State*>(lua_state_);
-
-    if (!LoadStackLocation(lua_state, variable_name)) {
+    if (!LoadStackLocation(variable_name)) {
       Error(variable_name, "Cannot load stack location");
-      ResetStack(lua_state);
+      ResetStack();
       return GetDefault<T>();
     }
 
-    const T result = Get<T>(lua_state, variable_name);
-    ResetStack(lua_state);
+    const T result = Get<T>(variable_name);
+    ResetStack();
     return result;
   }
 };
 
 template <>
-inline bool LuaScript::GetDefault<bool>() const {
+inline bool LuaScript::GetDefault<bool>() {
   return false;
 }
 
 template <>
-inline bool LuaScript::Get<bool>(lua_State* lua_state,
-                                 const std::string& variable_name) const {
-  if (!lua_isboolean(lua_state, -1)) {
+inline bool LuaScript::Get<bool>(const std::string& variable_name) {
+  if (!lua_isboolean(lua_state_, -1)) {
     Error(variable_name, "Not a boolean");
     return GetDefault<bool>();
   }
-  return static_cast<bool>(lua_toboolean(lua_state, -1));
+  return static_cast<bool>(lua_toboolean(lua_state_, -1));
 }
 
 template <>
-inline float LuaScript::Get<float>(lua_State* lua_state,
-                                   const std::string& variable_name) const {
-  if (!lua_isnumber(lua_state, -1)) {
+inline float LuaScript::Get<float>(const std::string& variable_name) {
+  if (!lua_isnumber(lua_state_, -1)) {
     Error(variable_name, "Not a number");
     return GetDefault<float>();
   }
-  return static_cast<float>(lua_tonumber(lua_state, -1));
+  return static_cast<float>(lua_tonumber(lua_state_, -1));
 }
 
 template <>
-inline int LuaScript::Get<int>(lua_State* lua_state,
-                               const std::string& variable_name) const {
-  if (!lua_isnumber(lua_state, -1)) {
+inline int LuaScript::Get<int>(const std::string& variable_name) {
+  if (!lua_isnumber(lua_state_, -1)) {
     Error(variable_name, "Not a number");
     return GetDefault<int>();
   }
-  return static_cast<int>(lua_tonumber(lua_state, -1));
+  return static_cast<int>(lua_tonumber(lua_state_, -1));
 }
 
 template <>
 inline unsigned int LuaScript::Get<unsigned int>(
-    lua_State* lua_state, const std::string& variable_name) const {
-  if (!lua_isnumber(lua_state, -1)) {
+    const std::string& variable_name) {
+  if (!lua_isnumber(lua_state_, -1)) {
     Error(variable_name, "Not a number");
     return GetDefault<unsigned int>();
   }
-  return static_cast<unsigned int>(lua_tonumber(lua_state, -1));
+  return static_cast<unsigned int>(lua_tonumber(lua_state_, -1));
 }
 
 template <>
-inline double LuaScript::Get<double>(lua_State* lua_state,
-                                     const std::string& variable_name) const {
-  if (!lua_isnumber(lua_state, -1)) {
+inline double LuaScript::Get<double>(const std::string& variable_name) {
+  if (!lua_isnumber(lua_state_, -1)) {
     Error(variable_name, "Not a number");
     return GetDefault<double>();
   }
-  return static_cast<double>(lua_tonumber(lua_state, -1));
+  return static_cast<double>(lua_tonumber(lua_state_, -1));
 }
 
 template <>
-inline std::string LuaScript::GetDefault<std::string>() const {
+inline std::string LuaScript::GetDefault<std::string>() {
   return "null";
 }
 
 template <>
 inline std::string LuaScript::Get<std::string>(
-    lua_State* lua_state, const std::string& variable_name) const {
-  if (!lua_isstring(lua_state, -1)) {
+    const std::string& variable_name) {
+  if (!lua_isstring(lua_state_, -1)) {
     Error(variable_name, "Not a string");
     return GetDefault<std::string>();
   }
-  return std::string(lua_tostring(lua_state, -1));
+  return std::string(lua_tostring(lua_state_, -1));
 }
 
 }  // namespace config_reader

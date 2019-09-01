@@ -51,8 +51,8 @@ namespace config_types {
     ClassName() = delete;                                               \
     ~ClassName() = default;                                             \
                                                                         \
-    void SetValue(const LuaScript& lua_script) override {               \
-      const CPPType value = lua_script.GetVariable<CPPType>(key_);      \
+    void SetValue(LuaScript* lua_script) override {                     \
+      const CPPType value = lua_script->GetVariable<CPPType>(key_);     \
       if (value < lower_bound_ || value > upper_bound_) {               \
         std::cerr << #ClassName << " Value " << value                   \
                   << " outside bounds; upperbound " << upper_bound_     \

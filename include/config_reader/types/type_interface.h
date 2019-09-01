@@ -48,7 +48,7 @@ class TypeInterface {
   virtual ~TypeInterface() {}
   std::string GetKey() const { return key_; };
   Type GetType() const { return type_; };
-  virtual void SetValue(const LuaScript& lua_script) = 0;
+  virtual void SetValue(LuaScript* lua_script) = 0;
 
  protected:
   std::string key_;

@@ -108,7 +108,7 @@ const CPPType& InitVar(const std::string& key) {
 
 void LuaRead(const std::vector<std::string>& files) {
   // Create the LuaScript object
-  const LuaScript script(files);
+  LuaScript script(files);
   // Loop through the unordered map
   for (const auto& pair : MapSingleton::Singleton()) {
     config_types::TypeInterface* t = pair.second.get();
@@ -116,7 +116,7 @@ void LuaRead(const std::vector<std::string>& files) {
       std::cerr << "Key has a type CNULL!" << std::endl;
       return;
     }
-    t->SetValue(script);
+    t->SetValue(&script);
   }
   *MapSingleton::NewKeyAdded() = false;
 }
@@ -125,7 +125,7 @@ class ConfigReader {
   std::atomic_bool is_running_;
   std::thread daemon_;
 
-  void InitDaemon(const std::vector<std::string>& files) {
+  void InitDaemon(const std::vector<std::string> files) {
     static constexpr int kEventSize = sizeof(inotify_event);
     static constexpr int kEventBufferLength = (1024 * (kEventSize + 16));
     static constexpr int kInotifySleep = 50;
@@ -143,9 +143,10 @@ class ConfigReader {
     std::unordered_map<int, std::set<std::string>> wd_to_files;
 
     // Add a listener on each parent directory
-    for (const std::string& filepath : files) {
-      std::string filename = basename(strdup(filepath.c_str()));
-      std::string directory = dirname(strdup(filepath.c_str()));
+    for (std::string filepath : files) {
+      char* filepath_cstr = &filepath[0];
+      std::string filename = basename(filepath_cstr);
+      std::string directory = dirname(filepath_cstr);
 
       // (Will be duplicate wd if we've already add_watched the directory)
       int wd = inotify_add_watch(fd, directory.c_str(), IN_MODIFY);
@@ -187,11 +188,6 @@ class ConfigReader {
         LuaRead(files);
         needs_update = false;
         continue;
-      }
-
-      if (nr_events < 0) {
-        // If the call to epoll_wait failed
-        std::cerr << "ERROR: Call to epoll_wait failed." << std::endl;
       }
 
       if (nr_events > 0) {
@@ -236,7 +232,7 @@ class ConfigReader {
     close(epfd);
     close(fd);
   }
-  void CreateDaemon(const std::vector<std::string>& files) {
+  void CreateDaemon(const std::vector<std::string> files) {
     LuaRead(files);
     is_running_ = true;
     daemon_ = std::thread(&ConfigReader::InitDaemon, this, files);

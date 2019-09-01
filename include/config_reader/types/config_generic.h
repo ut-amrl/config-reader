@@ -36,8 +36,8 @@ namespace config_types {
     ClassName() = delete;                                           \
     ~ClassName() = default;                                         \
                                                                     \
-    void SetValue(const LuaScript& lua_script) override {           \
-      val_ = lua_script.GetVariable<CPPType>(key_);                 \
+    void SetValue(LuaScript* lua_script) override {                 \
+      val_ = lua_script->GetVariable<CPPType>(key_);                \
     }                                                               \
                                                                     \
     const CPPType& GetValue() { return this->val_; }                \
