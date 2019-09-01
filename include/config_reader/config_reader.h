@@ -22,8 +22,6 @@
 #ifndef CONFIGREADER_CONFIG_READER_H_
 #define CONFIGREADER_CONFIG_READER_H_
 
-#include <eigen3/Eigen/Core>
-
 extern "C" {
 #include <libgen.h>
 #include <sys/epoll.h>

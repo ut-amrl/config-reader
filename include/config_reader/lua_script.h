@@ -22,7 +22,6 @@
 #ifndef CONFIGREADER_LUA_SCRIPT_H_
 #define CONFIGREADER_LUA_SCRIPT_H_
 
-#include <eigen3/Eigen/Core>
 #include <iostream>
 #include <string>
 #include <vector>

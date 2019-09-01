@@ -33,3 +33,10 @@ int main() {
   return 0;
 }
 ```
+
+# Dependencies
+
+ - Lua 5.1 Development Package
+ - C++ compiler with C++ 11 support (e.g. `clang++`)
+
+ Ubuntu packages can be installed via `InstallPackages`.
