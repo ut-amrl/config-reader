@@ -40,3 +40,13 @@ int main() {
  - C++ compiler with C++ 11 support (e.g. `clang++`)
 
  Ubuntu packages can be installed via `InstallPackages`.
+
+ # Currently Supported C++ Types
+
+  - `int`
+  - `unsigned int`
+  - `double`
+  - `float`
+  - `std::string`
+  - `bool`
+  
