@@ -1,0 +1,7 @@
+language: cpp
+compiler:
+  - clang
+  - gcc
+before_install:
+  - sudo apt-get install -y liblua5.1-dev clang build-essential 
+script: cd examples && make
