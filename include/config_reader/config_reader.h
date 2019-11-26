@@ -79,10 +79,6 @@ class ConfigReader {
       exit(-1);
     }
 
-    // Each watch descriptor is associated with a directory that contains a set
-    // of watched files
-    std::unordered_map<int, std::set<std::string>> wd_to_files;
-
     // Add a listener on each parent directory
     for (const std::string& file : files) {
       int wd = inotify_add_watch(fd, file.c_str(), IN_MODIFY);
@@ -94,9 +90,6 @@ class ConfigReader {
         perror("Reason");
         return;
       }
-
-      // Add to list of watched files
-      wd_to_files[wd].insert(file);
     }
 
     int epfd = epoll_create(1);
@@ -139,13 +132,6 @@ class ConfigReader {
         for (int i = 0; i < length;) {
           inotify_event* event = reinterpret_cast<inotify_event*>(&buffer[i]);
           i += kEventSize + event->len;
-
-          auto res = wd_to_files.find(event->wd);
-          if (res == wd_to_files.end()) {
-            std::cerr << "ERROR: inotify event from unwatched file!"
-                      << std::endl;
-            continue;
-          }
 
           last_notify = std::chrono::system_clock::now();
           needs_update = true;
