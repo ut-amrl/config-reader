@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/ut-amrl/config-reader.svg?branch=master)](https://travis-ci.com/ut-amrl/config-reader)
+[![Build Status](https://travis-ci.com/ut-amrl/config-reader.svg?token=rBLDT1qXfkKmkTerGLzY&branch=master)](https://travis-ci.com/ut-amrl/config-reader)
 
 # Config Reader
 
