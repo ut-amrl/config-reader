@@ -40,69 +40,12 @@ extern "C" {
 #include <vector>
 
 #include "config_reader/lua_script.h"
-#include "types/type_interface.h"
-
-#include "types/config_generic.h"
-#include "types/config_numeric.h"
+#include "config_reader/macros.h"
+#include "config_reader/types/config_generic.h"
+#include "config_reader/types/config_numeric.h"
+#include "config_reader/types/type_interface.h"
 
 namespace config_reader {
-// Define constants
-static const std::string kDefaultFileName = "config.lua";
-
-#define MAKE_NAME(name) name
-
-// Define macros for creating new config vars
-
-#define CONFIG_INT(name, key)                                                  \
-  const int& MAKE_NAME(name) =                                                 \
-      ::config_reader::InitVar<int, ::config_reader::config_types::ConfigInt>( \
-          key)
-#define CONFIG_UINT(name, key)                                    \
-  const unsigned int& MAKE_NAME(name) = ::config_reader::InitVar< \
-      unsigned int, ::config_reader::config_types::ConfigUnsignedInt>(key)
-#define CONFIG_DOUBLE(name, key)                            \
-  const double& MAKE_NAME(name) = ::config_reader::InitVar< \
-      double, ::config_reader::config_types::ConfigDouble>(key)
-#define CONFIG_FLOAT(name, key)                            \
-  const float& MAKE_NAME(name) = ::config_reader::InitVar< \
-      float, ::config_reader::config_types::ConfigFloat>(key)
-#define CONFIG_STRING(name, key)                                 \
-  const std::string& MAKE_NAME(name) = ::config_reader::InitVar< \
-      std::string, ::config_reader::config_types::ConfigString>(key)
-#define CONFIG_BOOL(name, key)       \
-  const bool& MAKE_NAME(name) =      \
-      ::config_reader::InitVar<bool, \
-                               ::config_reader::config_types::ConfigBool>(key)
-
-class MapSingleton {
-  // Needs large number of buckets because references are not stable across
-  // map growths.
-  static constexpr int kNumMapBuckets = 1000000;
-
- public:
-  using KeyLookupMap =
-      std::unordered_map<std::string,
-                         std::unique_ptr<config_types::TypeInterface>>;
-
-  static KeyLookupMap& Singleton() {
-    static KeyLookupMap config(kNumMapBuckets);
-    return config;
-  }
-
-  static std::atomic_bool* NewKeyAdded() {
-    static std::atomic_bool new_key_added(false);
-    return &new_key_added;
-  }
-};
-
-template <typename CPPType, typename ConfigType>
-const CPPType& InitVar(const std::string& key) {
-  ConfigType* t = new ConfigType(key);
-  MapSingleton::Singleton()[key] =
-      std::unique_ptr<config_types::TypeInterface>(t);
-  *MapSingleton::NewKeyAdded() = true;
-  return t->GetValue();
-}
 
 void LuaRead(const std::vector<std::string>& files) {
   // Create the LuaScript object
@@ -164,7 +107,7 @@ class ConfigReader {
       std::cerr << "ERROR: Call to epoll_create failed." << std::endl;
     }
 
-    epoll_event ready_to_read = {0};
+    epoll_event ready_to_read = {};
     ready_to_read.data.fd = fd;
     ready_to_read.events = EPOLLIN;
     if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ready_to_read)) {

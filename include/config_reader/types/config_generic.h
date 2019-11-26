@@ -42,6 +42,8 @@ namespace config_types {
                                                                     \
     const CPPType& GetValue() { return this->val_; }                \
                                                                     \
+    static Type GetEnumType() { return Type::EnumName; }            \
+                                                                    \
    private:                                                         \
     CPPType val_;                                                   \
   };
