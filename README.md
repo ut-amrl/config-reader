@@ -1,9 +1,8 @@
-[![Build Status](https://travis-ci.com/ut-amrl/config-reader.svg?token=rBLDT1qXfkKmkTerGLzY&branch=master)](https://travis-ci.com/ut-amrl/config-reader)
-
 # Config Reader
 
 A strongly typed, header only Lua-based config file reader for C++ 11. Supports runtime reloading of parameter values on config file save.
 
+[![Build Status](https://travis-ci.com/ut-amrl/config-reader.svg?token=rBLDT1qXfkKmkTerGLzY&branch=master)](https://travis-ci.com/ut-amrl/config-reader)
 
 # Example Usage
 
