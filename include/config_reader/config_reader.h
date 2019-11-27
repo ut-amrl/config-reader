@@ -84,22 +84,19 @@ class ConfigReader {
     std::unordered_map<int, std::set<std::string>> wd_to_files;
 
     // Add a listener on each parent directory
-    for (std::string filepath : files) {
-      char* filepath_cstr = &filepath[0];
-      std::string filename = basename(filepath_cstr);
-      std::string directory = dirname(filepath_cstr);
+    for (const std::string& file : files) {
+      int wd = inotify_add_watch(fd, file.c_str(), IN_MODIFY);
 
-      // (Will be duplicate wd if we've already add_watched the directory)
-      int wd = inotify_add_watch(fd, directory.c_str(), IN_MODIFY);
-
-      if (wd == -1) {
-        std::cerr << "ERROR: Couldn't add watch to the file: " << filepath
+      if (wd < 0) {
+        std::cerr << "ERROR: Couldn't add watch to the file: "
+                  << file
                   << std::endl;
+        perror("Reason");
         return;
       }
 
       // Add to list of watched files
-      wd_to_files[wd].insert(filename);
+      wd_to_files[wd].insert(file);
     }
 
     int epfd = epoll_create(1);
@@ -143,22 +140,15 @@ class ConfigReader {
           inotify_event* event = reinterpret_cast<inotify_event*>(&buffer[i]);
           i += kEventSize + event->len;
 
-          // Length of file name must be positive
-          if (event->len <= 0) {
-            continue;
-          }
-
           auto res = wd_to_files.find(event->wd);
           if (res == wd_to_files.end()) {
-            std::cerr << "Unknown watch descriptor!" << std::endl;
+            std::cerr << "ERROR: inotify event from unwatched file!"
+                      << std::endl;
             continue;
           }
 
-          // If file is in our list of files to track for this wd, then update
-          if (res->second.count(event->name) != 0) {
-            last_notify = std::chrono::system_clock::now();
-            needs_update = true;
-          }
+          last_notify = std::chrono::system_clock::now();
+          needs_update = true;
         }
       }
       if (needs_update && std::chrono::duration_cast<std::chrono::milliseconds>(
