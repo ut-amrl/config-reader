@@ -91,11 +91,15 @@ class LuaScript {
   }
 
   void CleanupLuaState() {
-    lua_close(lua_state_);
-    lua_state_ = nullptr;
+    if (lua_state_) {
+      lua_close(lua_state_);
+      lua_state_ = nullptr;
+    }
   }
 
  public:
+  LuaScript() : lua_state_(nullptr) {}
+
   explicit LuaScript(const std::vector<std::string>& files)
       : lua_state_(luaL_newstate()) {
     luaL_openlibs(lua_state_);
