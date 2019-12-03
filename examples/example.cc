@@ -35,13 +35,13 @@ int main() {
   CONFIG_STRING(test_string, "testString");
   config_reader::ConfigReader reader({"config.lua", "config2.lua"});
   while (running) {
-    int local_int = test_int;
+    int local_int = CONFIG_test_int;
     std::cout << local_int << std::endl;
     if (local_int < 42) {
       std::cout << "It's less than 42!" << std::endl;
     }
-    std::cout << test_float << std::endl;
-    std::cout << test_string << std::endl;
+    std::cout << CONFIG_test_float << std::endl;
+    std::cout << CONFIG_test_string << std::endl;
   }
   return 0;
 }
