@@ -32,7 +32,7 @@
 #include "config_reader/types/type_interface.h"
 
 namespace config_reader {
-#define MAKE_NAME(name) name
+#define MAKE_NAME(name) CONFIG_ ## name
 
 // Define macros for creating new config vars
 
