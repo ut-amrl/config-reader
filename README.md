@@ -52,3 +52,20 @@ int main() {
   - `std::string`
   - `bool`
   
+ # Inotify Limits
+ 
+ The config reader library uses inotify file watches to automatically re-load configurations. It is common to have a low limit on the number of concurrent inotify watches. Under such circumstances, the config reader will fail to add watches with the following error:
+```
+ERROR: Couldn't add watch to the file: config.lua
+Reason: No space left on device
+```
+The current limit can be viewed by running:
+```
+cat /proc/sys/fs/inotify/max_user_watches
+```
+The limit can be increased to its maximum by editing `/etc/sysctl.conf` and adding this line to the end of the file:
+```
+fs.inotify.max_user_watches=524288
+```
+The new value can then be loaded in by running `sudo sysctl -p`.       
+More details: https://github.com/guard/listen/wiki/Increasing-the-amount-of-inotify-watchers
