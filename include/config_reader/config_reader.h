@@ -47,10 +47,6 @@ extern "C" {
 
 namespace config_reader {
 
-namespace globals {
-static std::atomic_bool config_initialized(false);  
-}  // namespace globals
-
 inline void LuaRead(const std::vector<std::string>& files) {
   // Create the LuaScript object
   LuaScript script(files);
@@ -70,7 +66,8 @@ inline void WaitForInit() {
   // Either variables aren't ready yet, or config reader isn't initialized yet.
   // Variables are guaranteed to be initialized after config class is
   // created.
-  while(*MapSingleton::NewKeyAdded() && globals::config_initialized) {};
+  while (*MapSingleton::NewKeyAdded() && *MapSingleton::ConfigInitialized()) {
+  };
 }
 
 class ConfigReader {
@@ -95,8 +92,7 @@ class ConfigReader {
       int wd = inotify_add_watch(fd, file.c_str(), IN_MODIFY);
 
       if (wd < 0) {
-        std::cerr << "ERROR: Couldn't add watch to the file: "
-                  << file
+        std::cerr << "ERROR: Couldn't add watch to the file: " << file
                   << std::endl;
         perror("Reason");
         return;
@@ -160,9 +156,10 @@ class ConfigReader {
     close(epfd);
     close(fd);
   }
+
   void CreateDaemon(const std::vector<std::string> files) {
     LuaRead(files);
-    globals::config_initialized = true;
+    *MapSingleton::ConfigInitialized() = true;
     is_running_ = true;
     daemon_ = std::thread(&ConfigReader::InitDaemon, this, files);
   }

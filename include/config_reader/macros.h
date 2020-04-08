@@ -32,7 +32,7 @@
 #include "config_reader/types/type_interface.h"
 
 namespace config_reader {
-#define MAKE_NAME(name) CONFIG_ ## name
+#define MAKE_NAME(name) CONFIG_##name
 
 // Define macros for creating new config vars
 
@@ -73,6 +73,11 @@ class MapSingleton {
   static std::atomic_bool* NewKeyAdded() {
     static std::atomic_bool new_key_added(false);
     return &new_key_added;
+  }
+
+  static std::atomic_bool* ConfigInitialized() {
+    static std::atomic_bool config_initialized(false);
+    return &config_initialized;
   }
 };
 
