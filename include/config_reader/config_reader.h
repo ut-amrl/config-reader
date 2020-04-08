@@ -47,7 +47,11 @@ extern "C" {
 
 namespace config_reader {
 
-void LuaRead(const std::vector<std::string>& files) {
+namespace globals {
+static std::atomic_bool config_initialized(false);  
+}  // namespace globals
+
+inline void LuaRead(const std::vector<std::string>& files) {
   // Create the LuaScript object
   LuaScript script(files);
   // Loop through the unordered map
@@ -60,6 +64,13 @@ void LuaRead(const std::vector<std::string>& files) {
     t->SetValue(&script);
   }
   *MapSingleton::NewKeyAdded() = false;
+}
+
+inline void WaitForInit() {
+  // Either variables aren't ready yet, or config reader isn't initialized yet.
+  // Variables are guaranteed to be initialized after config class is
+  // created.
+  while(*MapSingleton::NewKeyAdded() && globals::config_initialized) {};
 }
 
 class ConfigReader {
@@ -151,6 +162,7 @@ class ConfigReader {
   }
   void CreateDaemon(const std::vector<std::string> files) {
     LuaRead(files);
+    globals::config_initialized = true;
     is_running_ = true;
     daemon_ = std::thread(&ConfigReader::InitDaemon, this, files);
   }
