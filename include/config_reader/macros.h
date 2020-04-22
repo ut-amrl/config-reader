@@ -92,7 +92,8 @@ const CPPType& InitVar(const std::string& key) {
     return static_cast<ConfigType*>(ti)->GetValue();
   }
   auto insert_res = map.insert(
-      {key, std::unique_ptr<config_types::TypeInterface>(new ConfigType(key))});
+      std::make_pair(key, 
+          std::unique_ptr<config_types::TypeInterface>(new ConfigType(key))));
   if (!insert_res.second) {
     std::cerr << "Creation of " << key << " failed!" << std::endl;
     exit(0);
