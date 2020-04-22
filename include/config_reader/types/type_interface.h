@@ -43,6 +43,7 @@ enum Type {
 class TypeInterface {
  public:
   TypeInterface() = delete;
+  TypeInterface(const TypeInterface& o) : key_(o.key_), type_(o.type_) {}
   TypeInterface(const std::string& key, const Type& type)
       : key_(key), type_(type) {}
   virtual ~TypeInterface() {}
