@@ -194,7 +194,7 @@ inline double LuaScript::Get<double>(const std::string& variable_name) {
 
 template <>
 inline std::string LuaScript::GetDefault<std::string>() {
-  return "null";
+  return "";
 }
 
 template <>
