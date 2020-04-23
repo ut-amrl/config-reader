@@ -1,4 +1,4 @@
-// Copyright 2019 - 2020 Kyle Vedder (kvedder@seas.upenn.edu)
+// Copyright 2020 Kyle Vedder (kvedder@seas.upenn.edu)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,25 +23,31 @@
 
 #include "config_reader/config_reader.h"
 
-bool running = true;
+void Check(const bool statement) {
+  if (!statement) {
+    exit(1);
+  }
+}
 
-void SigIntHandler(__attribute__((unused)) int signum) { running = false; }
+int MyFunction() {
+  CONFIG_INT(twelve, "twelve");
+  config_reader::ConfigReader reader({"test_config2.lua"});
+  return CONFIG_twelve;
+}
 
 int main() {
-  signal(SIGINT, SigIntHandler);
+  CONFIG_INT(seven, "seven");
+  CONFIG_STRING(str, "str");
+  CONFIG_FLOAT(seven_point_five, "seven_point_five");
+  config_reader::ConfigReader reader({"test_config.lua"});
 
-  CONFIG_INT(test_int, "testInt");
-  CONFIG_FLOAT(test_float, "tree.stree.number");
-  CONFIG_STRING(test_string, "testString");
-  config_reader::ConfigReader reader({"config.lua", "config2.lua"});
-  for (int i = 0; i < 100 && running; ++i) {
-    int local_int = CONFIG_test_int;
-    std::cout << local_int << std::endl;
-    if (local_int < 42) {
-      std::cout << "It's less than 42!" << std::endl;
-    }
-    std::cout << CONFIG_test_float << std::endl;
-    std::cout << CONFIG_test_string << std::endl;
-  }
+  Check(CONFIG_seven == 7);
+  Check(CONFIG_str == "str");
+  Check(std::abs(CONFIG_seven_point_five - 7.5) < 0.0001f);
+  Check(MyFunction() == 12);
+  Check(CONFIG_seven == 7);
+  Check(CONFIG_str == "str");
+  Check(std::abs(CONFIG_seven_point_five - 7.5) < 0.0001f);
+  std::cout << "All tests passed!\n";
   return 0;
 }

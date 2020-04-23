@@ -36,6 +36,8 @@ int main() {
 }
 ```
 
+See `examples/` for an interactive demo. 
+
 # Dependencies
 
  - Lua 5.1 Development Package

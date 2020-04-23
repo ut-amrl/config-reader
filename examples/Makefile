@@ -1,16 +1,17 @@
-all: example.cc
-	$(CXX) --std=c++11 -Wextra -Wall -Werror -g -I ../include/ -o example example.cc -llua5.1 -lpthread
-	$(CXX) --std=c++11 -Wextra -Wall -Werror -g -I ../include/ -o multi_file_example multi_file_example.cc -llua5.1 -lpthread
+all: interactive_demo.cc tests.cc
+	$(CXX) --std=c++11 -Wextra -Wall -Werror -g -I ../include/ -o interactive_demo interactive_demo.cc -llua5.1 -lpthread
+	$(CXX) --std=c++11 -Wextra -Wall -Werror -g -I ../include/ -o tests tests.cc -llua5.1 -lpthread
 
-valgrind_run: all
-	valgrind --leak-check=full ./example
-	valgrind --leak-check=full ./multi_file_example
+valgrind_demo: all
+	valgrind --leak-check=full ./interactive_demo
 
-run: all
-	./example
-	./multi_file_example
+run_tests: all
+	./tests
 
-test: all run valgrind_run
+valgrind_tests: all
+	valgrind --leak-check=full ./tests
+
+test: all run_tests valgrind_tests
 
 clean: example
 	rm example
