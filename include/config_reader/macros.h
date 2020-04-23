@@ -1,4 +1,4 @@
-// Copyright 2019 Kyle Vedder (kvedder@seas.upenn.edu)
+// Copyright 2019 - 2020 Kyle Vedder (kvedder@seas.upenn.edu)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@
 #include "config_reader/types/type_interface.h"
 
 namespace config_reader {
-#define MAKE_NAME(name) CONFIG_ ## name
+#define MAKE_NAME(name) CONFIG_##name
 
 // Define macros for creating new config vars
 
@@ -91,9 +91,8 @@ const CPPType& InitVar(const std::string& key) {
     }
     return static_cast<ConfigType*>(ti)->GetValue();
   }
-  auto insert_res = map.insert(
-      std::make_pair(key, 
-          std::unique_ptr<config_types::TypeInterface>(new ConfigType(key))));
+  auto insert_res = map.insert(std::make_pair(
+      key, std::unique_ptr<config_types::TypeInterface>(new ConfigType(key))));
   if (!insert_res.second) {
     std::cerr << "Creation of " << key << " failed!" << std::endl;
     exit(1);

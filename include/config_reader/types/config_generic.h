@@ -1,5 +1,5 @@
-// Copyright 2019 Kyle Vedder (kvedder@seas.upenn.edu), 2018 Ishan Khatri
-// (ikhatri@umass.edu)
+// Copyright 2019 - 2020 Kyle Vedder (kvedder@seas.upenn.edu),
+// 2018 Ishan Khatri (ikhatri@umass.edu)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,10 @@ namespace config_types {
     ~ClassName() = default;                                         \
                                                                     \
     void SetValue(LuaScript* lua_script) override {                 \
-      val_ = lua_script->GetVariable<CPPType>(key_);                \
+      const auto result = lua_script->GetVariable<CPPType>(key_);   \
+      if (result.first) {                                           \
+        val_ = result.second;                                       \
+      }                                                             \
     }                                                               \
                                                                     \
     const CPPType& GetValue() { return this->val_; }                \

@@ -1,4 +1,4 @@
-// Copyright 2019 Kyle Vedder (kvedder@seas.upenn.edu)
+// Copyright 2019 - 2020 Kyle Vedder (kvedder@seas.upenn.edu)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ int main() {
   CONFIG_FLOAT(test_float, "tree.stree.number");
   CONFIG_STRING(test_string, "testString");
   config_reader::ConfigReader reader({"config.lua", "config2.lua"});
-  while (running) {
+  for (int i = 0; i < 100 && running; ++i) {
     int local_int = CONFIG_test_int;
     std::cout << local_int << std::endl;
     if (local_int < 42) {

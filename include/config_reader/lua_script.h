@@ -1,4 +1,4 @@
-// Copyright 2019 - 2020 Kyle Vedder (kvedder@seas.upenn.edu), 
+// Copyright 2019 - 2020 Kyle Vedder (kvedder@seas.upenn.edu),
 // 2018 Ishan Khatri (ikhatri@umass.edu)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -124,20 +124,20 @@ class LuaScript {
   ~LuaScript() { CleanupLuaState(); }
 
   template <typename T>
-  T GetVariable(const std::string& variable_name) {
+  std::pair<bool, T> GetVariable(const std::string& variable_name) {
     if (lua_state_ == nullptr) {
       Error(variable_name, "Script is not loaded");
-      return GetDefault<T>();
+      return {false, GetDefault<T>()};
     }
 
     if (!LoadStackLocation(variable_name)) {
       ResetStack();
-      return GetDefault<T>();
+      return {false, GetDefault<T>()};
     }
 
     const T result = Get<T>(variable_name);
     ResetStack();
-    return result;
+    return {true, result};
   }
 };
 

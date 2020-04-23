@@ -1,5 +1,4 @@
-// Copyright 2019 - 2020 Kyle Vedder (kvedder@seas.upenn.edu), 
-// 2018 Ishan Khatri (ikhatri@umass.edu)
+// Copyright 2020 Kyle Vedder (kvedder@seas.upenn.edu)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -19,44 +18,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // ========================================================================
-#ifndef CONFIGREADER_TYPES_TYPE_INTERFACE_H_
-#define CONFIGREADER_TYPES_TYPE_INTERFACE_H_
-
+#include <csignal>
 #include <iostream>
-#include <string>
 
-#include "config_reader/lua_script.h"
+#include "config_reader/config_reader.h"
 
-namespace config_reader {
-namespace config_types {
+int my_function() {
+  CONFIG_INT(function_int, "functionInt");
+  config_reader::ConfigReader reader({"config3.lua"});
+  return CONFIG_function_int;
+}
 
-enum Type {
-  CNULL,
-  CINT,
-  CUINT,
-  CDOUBLE,
-  CFLOAT,
-  CSTRING,
-  CBOOL,
-};
+int main() {
 
-class TypeInterface {
- public:
-  TypeInterface() = delete;
-  TypeInterface(const TypeInterface& o) : key_(o.key_), type_(o.type_) {}
-  TypeInterface(TypeInterface&& o)
-      : key_(std::move(o.key_)), type_(std::move(o.type_)) {}
-  TypeInterface(const std::string& key, const Type& type)
-      : key_(key), type_(type) {}
-  virtual ~TypeInterface() {}
-  std::string GetKey() const { return key_; };
-  Type GetType() const { return type_; };
-  virtual void SetValue(LuaScript* lua_script) = 0;
+  CONFIG_INT(test_int, "testInt");
+  CONFIG_FLOAT(test_float, "tree.stree.number");
+  CONFIG_STRING(test_string, "testString");
+  config_reader::ConfigReader reader({"config.lua", "config2.lua"});
+  int local_int = CONFIG_test_int;
+  std::cout << local_int << std::endl;
+  if (local_int < 42) {
+    std::cout << "It's less than 42!" << std::endl;
+  }
 
- protected:
-  std::string key_;
-  Type type_;
-};
-}  // namespace config_types
-}  // namespace config_reader
-#endif  // CONFIGREADER_TYPES_TYPE_INTERFACE_H_
+  std::cout << my_function() << std::endl;
+  std::cout << CONFIG_test_float << std::endl;
+  std::cout << CONFIG_test_string << std::endl;
+  return 0;
+}

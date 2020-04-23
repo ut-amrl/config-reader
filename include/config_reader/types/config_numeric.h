@@ -1,5 +1,5 @@
-// Copyright 2019 Kyle Vedder (kvedder@seas.upenn.edu), 2018 Ishan Khatri
-// (ikhatri@umass.edu)
+// Copyright 2019 - 2020 Kyle Vedder (kvedder@seas.upenn.edu), 
+// 2018 Ishan Khatri (ikhatri@umass.edu)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -52,7 +52,11 @@ namespace config_types {
     ~ClassName() = default;                                             \
                                                                         \
     void SetValue(LuaScript* lua_script) override {                     \
-      const CPPType value = lua_script->GetVariable<CPPType>(key_);     \
+      const auto result = lua_script->GetVariable<CPPType>(key_);       \
+      if (!result.first) {                                              \
+        return;                                                         \
+      }                                                                 \
+      const CPPType& value = result.second;                             \
       if (value < lower_bound_ || value > upper_bound_) {               \
         std::cerr << #ClassName << " Value " << value                   \
                   << " outside bounds; upperbound " << upper_bound_     \
