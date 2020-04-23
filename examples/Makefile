@@ -4,6 +4,13 @@ all: example.cc
 
 valgrind_run: all
 	valgrind --leak-check=full ./example
+	valgrind --leak-check=full ./multi_file_example
+
+run: all
+	./example
+	./multi_file_example
+
+test: all run valgrind_run
 
 clean: example
 	rm example
