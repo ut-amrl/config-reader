@@ -87,7 +87,7 @@ class ConfigReader {
     int fd = inotify_init();
     if (fd < 0) {
       std::cerr << "ERROR: Couldn't initialize inotify" << std::endl;
-      exit(-1);
+      exit(1);
     }
 
     // Add a listener on each parent directory

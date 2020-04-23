@@ -87,7 +87,7 @@ const CPPType& InitVar(const std::string& key) {
                 << ". Existing type: " << ti->GetType()
                 << ", requested type: " << ConfigType::GetEnumType()
                 << std::endl;
-      exit(0);
+      exit(1);
     }
     return static_cast<ConfigType*>(ti)->GetValue();
   }
@@ -96,7 +96,7 @@ const CPPType& InitVar(const std::string& key) {
           std::unique_ptr<config_types::TypeInterface>(new ConfigType(key))));
   if (!insert_res.second) {
     std::cerr << "Creation of " << key << " failed!" << std::endl;
-    exit(0);
+    exit(1);
   }
   *MapSingleton::NewKeyAdded() = true;
   config_types::TypeInterface* ti = insert_res.first->second.get();
