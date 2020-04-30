@@ -1,4 +1,4 @@
-// Copyright 2019 Kyle Vedder (kvedder@seas.upenn.edu)
+// Copyright 2019 - 2020 Kyle Vedder (kvedder@seas.upenn.edu)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -92,15 +92,15 @@ const CPPType& InitVar(const std::string& key) {
                 << ". Existing type: " << ti->GetType()
                 << ", requested type: " << ConfigType::GetEnumType()
                 << std::endl;
-      exit(0);
+      exit(1);
     }
     return static_cast<ConfigType*>(ti)->GetValue();
   }
-  auto insert_res = map.insert(
-      {key, std::unique_ptr<config_types::TypeInterface>(new ConfigType(key))});
+  auto insert_res = map.insert(std::make_pair(
+      key, std::unique_ptr<config_types::TypeInterface>(new ConfigType(key))));
   if (!insert_res.second) {
     std::cerr << "Creation of " << key << " failed!" << std::endl;
-    exit(0);
+    exit(1);
   }
   *MapSingleton::NewKeyAdded() = true;
   config_types::TypeInterface* ti = insert_res.first->second.get();

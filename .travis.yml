@@ -1,4 +1,4 @@
-dist: bionic
+dist: xenial
 sudo: required
 language:
   - cpp
@@ -10,11 +10,10 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - gcc-7
-      - g++-7
+      - gcc
       - cmake
-      - clang-7
+      - clang
 before_install:
-  - sudo apt-get install -y liblua5.1-dev clang build-essential 
-script: cd examples && make
+  - ./InstallPackages
+script: cd examples && make test
 

@@ -36,6 +36,8 @@ int main() {
 }
 ```
 
+See `examples/` for an interactive demo. 
+
 # Dependencies
 
  - Lua 5.1 Development Package
@@ -51,6 +53,18 @@ int main() {
   - `float`
   - `std::string`
   - `bool`
+
+ # Missing Variable Messages
+
+ By default this library only prints warning messages for missing requested variables if they are member variables of a top level variable. For example, consider the config file
+
+ ```
+ foo = {
+   bar = 0;
+ };
+ ```
+
+ With the C++ bindings, attempting to load non existent top level variables, e.g. `bar`, or members of missing top level variables, e.g. `bar.baz`, will not print an error, but loading missing member variables such as `foo.baz` will print an error. This setting can be overridden by changing the compile time constant in `lua_script.h`.
   
  # Inotify Limits
  

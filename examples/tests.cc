@@ -1,5 +1,4 @@
-// Copyright 2019 - 2020 Kyle Vedder (kvedder@seas.upenn.edu), 
-// 2018 Ishan Khatri (ikhatri@umass.edu)
+// Copyright 2020 Kyle Vedder (kvedder@seas.upenn.edu)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -19,44 +18,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // ========================================================================
-#ifndef CONFIGREADER_TYPES_TYPE_INTERFACE_H_
-#define CONFIGREADER_TYPES_TYPE_INTERFACE_H_
-
+#include <csignal>
 #include <iostream>
-#include <string>
 
-#include "config_reader/lua_script.h"
+#include "config_reader/config_reader.h"
 
-namespace config_reader {
-namespace config_types {
+void Check(const bool statement) {
+  if (!statement) {
+    exit(1);
+  }
+}
 
-enum Type {
-  CNULL,
-  CINT,
-  CUINT,
-  CDOUBLE,
-  CFLOAT,
-  CSTRING,
-  CBOOL,
-};
+int MyFunction() {
+  CONFIG_INT(twelve, "twelve");
+  config_reader::ConfigReader reader({"test_config2.lua"});
+  return CONFIG_twelve;
+}
 
-class TypeInterface {
- public:
-  TypeInterface() = delete;
-  TypeInterface(const TypeInterface& o) : key_(o.key_), type_(o.type_) {}
-  TypeInterface(TypeInterface&& o)
-      : key_(std::move(o.key_)), type_(std::move(o.type_)) {}
-  TypeInterface(const std::string& key, const Type& type)
-      : key_(key), type_(type) {}
-  virtual ~TypeInterface() {}
-  std::string GetKey() const { return key_; };
-  Type GetType() const { return type_; };
-  virtual void SetValue(LuaScript* lua_script) = 0;
+int main() {
+  CONFIG_INT(seven, "seven");
+  CONFIG_STRING(str, "str");
+  CONFIG_FLOAT(seven_point_five, "seven_point_five");
+  config_reader::ConfigReader reader({"test_config.lua"});
 
- protected:
-  std::string key_;
-  Type type_;
-};
-}  // namespace config_types
-}  // namespace config_reader
-#endif  // CONFIGREADER_TYPES_TYPE_INTERFACE_H_
+  Check(CONFIG_seven == 7);
+  Check(CONFIG_str == "str");
+  Check(std::abs(CONFIG_seven_point_five - 7.5) < 0.0001f);
+  Check(MyFunction() == 12);
+  Check(CONFIG_seven == 7);
+  Check(CONFIG_str == "str");
+  Check(std::abs(CONFIG_seven_point_five - 7.5) < 0.0001f);
+  std::cout << "All tests passed!\n";
+  return 0;
+}

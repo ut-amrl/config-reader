@@ -1,5 +1,5 @@
-// Copyright 2019 Kyle Vedder (kvedder@seas.upenn.edu), 2018 Ishan Khatri
-// (ikhatri@umass.edu)
+// Copyright 2019 - 2020 Kyle Vedder (kvedder@seas.upenn.edu),
+// 2018 Ishan Khatri (ikhatri@umass.edu)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,8 @@ extern "C" {
 #include "lua5.1/lualib.h"
 }
 
+static constexpr bool kDisableTopLevelMissingError = true;
+
 namespace config_reader {
 class LuaScript {
   lua_State* lua_state_;
@@ -56,7 +58,9 @@ class LuaScript {
         }
 
         if (lua_isnil(lua_state_, -1)) {
-          Error(variable_name, var + " is not defined");
+          if (!kDisableTopLevelMissingError) {
+            Error(variable_name, var + " is not defined");
+          }
           return false;
         } else {
           var = "";
@@ -72,7 +76,9 @@ class LuaScript {
       lua_getfield(lua_state_, -1, var.c_str());
     }
     if (lua_isnil(lua_state_, -1)) {
-      Error(variable_name, var + " is not defined");
+      if (!kDisableTopLevelMissingError || level > 0) {
+        Error(variable_name, var + " is not defined");
+      }
       return false;
     }
 
@@ -118,21 +124,20 @@ class LuaScript {
   ~LuaScript() { CleanupLuaState(); }
 
   template <typename T>
-  T GetVariable(const std::string& variable_name) {
+  std::pair<bool, T> GetVariable(const std::string& variable_name) {
     if (lua_state_ == nullptr) {
       Error(variable_name, "Script is not loaded");
-      return GetDefault<T>();
+      return {false, GetDefault<T>()};
     }
 
     if (!LoadStackLocation(variable_name)) {
-      Error(variable_name, "Cannot load stack location");
       ResetStack();
-      return GetDefault<T>();
+      return {false, GetDefault<T>()};
     }
 
     const T result = Get<T>(variable_name);
     ResetStack();
-    return result;
+    return {true, result};
   }
 };
 
@@ -189,7 +194,7 @@ inline double LuaScript::Get<double>(const std::string& variable_name) {
 
 template <>
 inline std::string LuaScript::GetDefault<std::string>() {
-  return "null";
+  return "";
 }
 
 template <>

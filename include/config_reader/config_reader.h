@@ -1,5 +1,5 @@
-// Copyright 2019 Kyle Vedder (kvedder@seas.upenn.edu), 2018 Ishan Khatri
-// (ikhatri@umass.edu)
+// Copyright 2019 - 2020 Kyle Vedder (kvedder@seas.upenn.edu), 
+// 2018 Ishan Khatri (ikhatri@umass.edu)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -66,8 +66,7 @@ inline void WaitForInit() {
   // Either variables aren't ready yet, or config reader isn't initialized yet.
   // Variables are guaranteed to be initialized after config class is
   // created.
-  while (*MapSingleton::NewKeyAdded() && *MapSingleton::ConfigInitialized()) {
-  };
+  while (*MapSingleton::NewKeyAdded() && *MapSingleton::ConfigInitialized()) {};
 }
 
 class ConfigReader {
@@ -84,7 +83,7 @@ class ConfigReader {
     int fd = inotify_init();
     if (fd < 0) {
       std::cerr << "ERROR: Couldn't initialize inotify" << std::endl;
-      exit(-1);
+      exit(1);
     }
 
     // Add a listener on each parent directory
