@@ -70,14 +70,27 @@ namespace config_reader {
   const auto& MAKE_NAME(name) = ::config_reader::InitVar<                    \
       std::vector<double>, ::config_reader::config_types::ConfigDoubleList>( \
       key)
-#define CONFIG_STRINGLIST(name, key)                                         \
-  const auto& MAKE_NAME(name) = ::config_reader::InitVar<                    \
-      std::vector<std::string>, ::config_reader::config_types::ConfigStringList>( \
-      key)
-#define CONFIG_BOOLLIST(name, key)                                         \
-  const auto& MAKE_NAME(name) = ::config_reader::InitVar<                    \
-      std::vector<bool>, ::config_reader::config_types::ConfigBoolList>( \
-      key)
+#define CONFIG_STRINGLIST(name, key)                      \
+  const auto& MAKE_NAME(name) = ::config_reader::InitVar< \
+      std::vector<std::string>,                           \
+      ::config_reader::config_types::ConfigStringList>(key)
+#define CONFIG_BOOLLIST(name, key)                        \
+  const auto& MAKE_NAME(name) = ::config_reader::InitVar< \
+      std::vector<bool>, ::config_reader::config_types::ConfigBoolList>(key)
+#define CONFIG_VECTOR2F(name, key)                        \
+  const auto& MAKE_NAME(name) = ::config_reader::InitVar< \
+      Eigen::Vector2f, ::config_reader::config_types::ConfigVector2f>(key)
+#define CONFIG_VECTOR3F(name, key)                        \
+  const auto& MAKE_NAME(name) = ::config_reader::InitVar< \
+      Eigen::Vector3f, ::config_reader::config_types::ConfigVector3f>(key)
+#define CONFIG_VECTOR2FLIST(name, key)                    \
+  const auto& MAKE_NAME(name) = ::config_reader::InitVar< \
+      std::vector<Eigen::Vector2f>,                       \
+      ::config_reader::config_types::ConfigVector2fList>(key)
+#define CONFIG_VECTOR3FLIST(name, key)                    \
+  const auto& MAKE_NAME(name) = ::config_reader::InitVar< \
+      std::vector<Eigen::Vector3f>,                       \
+      ::config_reader::config_types::ConfigVector3fList>(key)
 
 class MapSingleton {
   static constexpr int kNumMapBuckets = 1000000;

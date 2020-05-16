@@ -22,6 +22,7 @@
 #ifndef CONFIGREADER_LUA_SCRIPT_H_
 #define CONFIGREADER_LUA_SCRIPT_H_
 
+#include <eigen3/Eigen/Core>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -34,6 +35,9 @@ extern "C" {
 
 static constexpr bool kDisableTopLevelMissingError = true;
 
+namespace config_reader {
+
+namespace util {
 inline void StackDump(lua_State* L) {
   int top = lua_gettop(L);
   for (int i = 1; i <= top; i++) { /* repeat for each level */
@@ -59,8 +63,11 @@ inline void StackDump(lua_State* L) {
   }
   printf("\n"); /* end the listing */
 }
+}  // namespace util
 
-namespace config_reader {
+template <typename T>
+inline T GetDefaultValue();
+
 class LuaScript {
   lua_State* lua_state_;
 
@@ -115,7 +122,9 @@ class LuaScript {
   T Get(const std::string& variable_name);
 
   template <typename T>
-  T GetDefault();
+  T GetDefault() {
+    return GetDefaultValue<T>();
+  };
 
   void CleanupLuaState() {
     if (lua_state_) {
@@ -162,18 +171,6 @@ class LuaScript {
   }
 };
 
-#define SET_DEFAULT_VALUE(Type, Value)              \
-  template <>                                 \
-  inline Type LuaScript::GetDefault<Type>() { \
-    return Value;                             \
-  }
-
-#define SET_DEFAULT(Type)              \
-  template <>                                 \
-  inline Type LuaScript::GetDefault<Type>() { \
-    return Type();                            \
-  }
-
 #define GET_NUMBER(Type)                                               \
   template <>                                                          \
   inline Type LuaScript::Get<Type>(const std::string& variable_name) { \
@@ -207,19 +204,32 @@ class LuaScript {
     return data;                                                           \
   }
 
-SET_DEFAULT_VALUE(float, 0.0f);
+#define GET_OBJECT_LIST(Type)                                              \
+  template <>                                                              \
+  inline std::vector<Type> LuaScript::Get<std::vector<Type>>(              \
+      const std::string& variable_name) {                                  \
+    if (!lua_istable(lua_state_, -1)) {                                    \
+      Error(variable_name, "Not a std::vector<Type>");                     \
+      return GetDefault<std::vector<Type>>();                              \
+    }                                                                      \
+    const int table_length = static_cast<int>(lua_objlen(lua_state_, -1)); \
+    std::vector<Type> data;                                                \
+    for (int i = 1; i <= table_length; ++i) {                              \
+      lua_pushinteger(lua_state_, i);                                      \
+      lua_gettable(lua_state_, -2);                                        \
+      data.push_back(Get<Type>(variable_name + " element"));               \
+      lua_pop(lua_state_, 1);                                              \
+    }                                                                      \
+    return data;                                                           \
+  }
+
 GET_NUMBER(float);
 
-SET_DEFAULT_VALUE(int, 0);
 GET_NUMBER(int);
 
-SET_DEFAULT_VALUE(unsigned int, 0);
 GET_NUMBER(unsigned int);
 
-SET_DEFAULT_VALUE(double, 0.0);
 GET_NUMBER(double);
-
-SET_DEFAULT_VALUE(bool, false);
 
 template <>
 inline bool LuaScript::Get<bool>(const std::string& variable_name) {
@@ -230,7 +240,6 @@ inline bool LuaScript::Get<bool>(const std::string& variable_name) {
   return static_cast<bool>(lua_toboolean(lua_state_, -1));
 }
 
-SET_DEFAULT(std::string);
 template <>
 inline std::string LuaScript::Get<std::string>(
     const std::string& variable_name) {
@@ -241,19 +250,14 @@ inline std::string LuaScript::Get<std::string>(
   return std::string(lua_tostring(lua_state_, -1));
 }
 
-SET_DEFAULT(std::vector<int>);
 GET_NUMBER_LIST(int);
 
-SET_DEFAULT(std::vector<unsigned int>);
 GET_NUMBER_LIST(unsigned int);
 
-SET_DEFAULT(std::vector<float>);
 GET_NUMBER_LIST(float);
 
-SET_DEFAULT(std::vector<double>);
 GET_NUMBER_LIST(double);
 
-SET_DEFAULT(std::vector<std::string>);
 template <>
 inline std::vector<std::string> LuaScript::Get<std::vector<std::string>>(
     const std::string& variable_name) {
@@ -276,7 +280,6 @@ inline std::vector<std::string> LuaScript::Get<std::vector<std::string>>(
   return data;
 }
 
-SET_DEFAULT(std::vector<bool>);
 template <>
 inline std::vector<bool> LuaScript::Get<std::vector<bool>>(
     const std::string& variable_name) {
@@ -298,6 +301,64 @@ inline std::vector<bool> LuaScript::Get<std::vector<bool>>(
   }
   return data;
 }
+
+template <>
+inline Eigen::Vector2f LuaScript::Get<Eigen::Vector2f>(
+    const std::string& variable_name) {
+  if (!lua_istable(lua_state_, -1)) {
+    Error(variable_name, "Not a std::vector<bool>");
+    return GetDefault<Eigen::Vector2f>();
+  }
+  const int table_length = static_cast<int>(lua_objlen(lua_state_, -1));
+  if (table_length != 2) {
+    Error(variable_name, "Wrong number of entries for Vector2f (" +
+                             std::to_string(table_length) + ")");
+    return GetDefault<Eigen::Vector2f>();
+  }
+  Eigen::Vector2f data = Eigen::Vector2f::Zero();
+  for (int i = 1; i <= 2; ++i) {
+    lua_pushinteger(lua_state_, i);
+    lua_gettable(lua_state_, -2);
+    if (!lua_isnumber(lua_state_, -1)) {
+      Error(variable_name, "Element not a number");
+      return GetDefault<Eigen::Vector2f>();
+    }
+    data(i - 1) = static_cast<float>(lua_tonumber(lua_state_, -1));
+    lua_pop(lua_state_, 1);
+  }
+  return data;
+}
+
+template <>
+inline Eigen::Vector3f LuaScript::Get<Eigen::Vector3f>(
+    const std::string& variable_name) {
+  if (!lua_istable(lua_state_, -1)) {
+    Error(variable_name, "Not a std::vector<bool>");
+    return GetDefault<Eigen::Vector3f>();
+  }
+  const int table_length = static_cast<int>(lua_objlen(lua_state_, -1));
+  if (table_length != 3) {
+    Error(variable_name, "Wrong number of entries for Vector3f (" +
+                             std::to_string(table_length) + ")");
+    return GetDefault<Eigen::Vector3f>();
+  }
+  Eigen::Vector3f data = Eigen::Vector3f::Zero();
+  for (int i = 1; i <= 3; ++i) {
+    lua_pushinteger(lua_state_, i);
+    lua_gettable(lua_state_, -2);
+    if (!lua_isnumber(lua_state_, -1)) {
+      Error(variable_name, "Element not a number");
+      return GetDefault<Eigen::Vector3f>();
+    }
+    data(i - 1) = static_cast<float>(lua_tonumber(lua_state_, -1));
+    lua_pop(lua_state_, 1);
+  }
+  return data;
+}
+
+GET_OBJECT_LIST(Eigen::Vector2f);
+
+GET_OBJECT_LIST(Eigen::Vector3f);
 
 }  // namespace config_reader
 

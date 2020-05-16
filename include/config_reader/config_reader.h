@@ -66,7 +66,8 @@ inline void WaitForInit() {
   // Either variables aren't ready yet, or config reader isn't initialized yet.
   // Variables are guaranteed to be initialized after config class is
   // created.
-  while (*MapSingleton::NewKeyAdded() && *MapSingleton::ConfigInitialized()) {};
+  while (*MapSingleton::NewKeyAdded() && *MapSingleton::ConfigInitialized()) {
+  };
 }
 
 class ConfigReader {
