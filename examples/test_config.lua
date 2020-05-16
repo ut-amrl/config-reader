@@ -9,3 +9,9 @@ bool_list = {true, false};
 
 sample_vector2f = {1.2, 3.4};
 sample_vector2f_list = {{1.2, 3.4}, {5.6, 7.8}};
+
+wrapper = {
+another = {
+  sample_vector2f_list = {{9.1, 2.3}, {4.5, 6.7}};
+};
+};
