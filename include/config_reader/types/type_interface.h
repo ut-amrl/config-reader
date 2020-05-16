@@ -1,4 +1,4 @@
-// Copyright 2019 - 2020 Kyle Vedder (kvedder@seas.upenn.edu), 
+// Copyright 2019 - 2020 Kyle Vedder (kvedder@seas.upenn.edu),
 // 2018 Ishan Khatri (ikhatri@umass.edu)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -38,6 +38,12 @@ enum Type {
   CFLOAT,
   CSTRING,
   CBOOL,
+  CINTLIST,
+  CUINTLIST,
+  CFLOATLIST,
+  CDOUBLELIST,
+  CSTRINGLIST,
+  CBOOLLIST,
 };
 
 class TypeInterface {

@@ -53,6 +53,12 @@ namespace config_types {
 
 GENERIC_CLASS(ConfigString, CSTRING, std::string, "");
 GENERIC_CLASS(ConfigBool, CBOOL, bool, false);
+GENERIC_CLASS(ConfigIntList, CINTLIST, std::vector<int>, {});
+GENERIC_CLASS(ConfigUnsignedIntList, CUINTLIST, std::vector<unsigned int>, {});
+GENERIC_CLASS(ConfigFloatList, CFLOATLIST, std::vector<float>, {});
+GENERIC_CLASS(ConfigDoubleList, CDOUBLELIST, std::vector<double>, {});
+GENERIC_CLASS(ConfigStringList, CSTRINGLIST, std::vector<std::string>, {});
+GENERIC_CLASS(ConfigBoolList, CBOOLLIST, std::vector<bool>, {});
 }  // namespace config_types
 }  // namespace config_reader
 #endif  // CONFIGREADER_TYPES_CONFIG_FLOAT_H_

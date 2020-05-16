@@ -53,6 +53,12 @@ See `examples/` for an interactive demo.
   - `float`
   - `std::string`
   - `bool`
+  - `vector<int>`
+  - `vector<unsigned int>`
+  - `vector<double>`
+  - `vector<float>`
+  - `vector<std::string>`
+  - `vector<bool>`
 
  # Missing Variable Messages
 

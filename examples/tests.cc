@@ -39,7 +39,28 @@ int main() {
   CONFIG_INT(seven, "seven");
   CONFIG_STRING(str, "str");
   CONFIG_FLOAT(seven_point_five, "seven_point_five");
+  CONFIG_INTLIST(int_list, "int_list");
+  CONFIG_DOUBLELIST(double_list, "double_list");
+  CONFIG_BOOLLIST(bool_list, "bool_list");
   config_reader::ConfigReader reader({"test_config.lua"});
+
+  Check(CONFIG_int_list.size() == 16);
+  int sum_i = 0;
+  for (const int& i : CONFIG_int_list) {
+    sum_i += i;
+  }
+  Check(sum_i == 224);
+
+  Check(CONFIG_double_list.size() == 2);
+  double sum_d = 0;
+  for (const double& i : CONFIG_double_list) {
+    sum_d += i;
+  }
+  Check(sum_d == 4.554);
+
+  Check(CONFIG_bool_list.size() == 2);
+  Check(CONFIG_bool_list[0] == true);
+  Check(CONFIG_bool_list[1] == false);
 
   Check(CONFIG_seven == 7);
   Check(CONFIG_str == "str");
