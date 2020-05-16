@@ -24,10 +24,11 @@
 
 #include "config_reader/types/type_interface.h"
 
-namespace config_reader {
-namespace config_types {
+#include <eigen3/Eigen/Core>
 
 #define GENERIC_CLASS(ClassName, EnumName, CPPType, DefaultValue)   \
+  namespace config_reader {                                         \
+  namespace config_types {                                          \
   class ClassName : public TypeInterface {                          \
    public:                                                          \
     ClassName(const std::string& key)                               \
@@ -47,9 +48,17 @@ namespace config_types {
                                                                     \
     static Type GetEnumType() { return Type::EnumName; }            \
                                                                     \
+    static CPPType GetDefaultValue() { return DefaultValue; }       \
+                                                                    \
    private:                                                         \
     CPPType val_;                                                   \
-  };
+  };                                                                \
+  }                                                                 \
+  template <>                                                       \
+  inline CPPType GetDefaultValue<CPPType>() {                       \
+    return DefaultValue;                                            \
+  }                                                                 \
+  }
 
 GENERIC_CLASS(ConfigString, CSTRING, std::string, "");
 GENERIC_CLASS(ConfigBool, CBOOL, bool, false);
@@ -59,6 +68,13 @@ GENERIC_CLASS(ConfigFloatList, CFLOATLIST, std::vector<float>, {});
 GENERIC_CLASS(ConfigDoubleList, CDOUBLELIST, std::vector<double>, {});
 GENERIC_CLASS(ConfigStringList, CSTRINGLIST, std::vector<std::string>, {});
 GENERIC_CLASS(ConfigBoolList, CBOOLLIST, std::vector<bool>, {});
-}  // namespace config_types
-}  // namespace config_reader
+GENERIC_CLASS(ConfigVector2f, CVECTOR2F, Eigen::Vector2f,
+              Eigen::Vector2f::Zero());
+GENERIC_CLASS(ConfigVector3f, CVECTOR3F, Eigen::Vector3f,
+              Eigen::Vector3f::Zero());
+GENERIC_CLASS(ConfigVector2fList, CVECTOR2FLIST, std::vector<Eigen::Vector2f>,
+              {});
+GENERIC_CLASS(ConfigVector3fList, CVECTOR3FLIST, std::vector<Eigen::Vector3f>,
+              {});
+
 #endif  // CONFIGREADER_TYPES_CONFIG_FLOAT_H_

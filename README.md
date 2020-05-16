@@ -42,6 +42,7 @@ See `examples/` for an interactive demo.
 
  - Lua 5.1 Development Package
  - C++ compiler with C++ 11 support (e.g. `clang++`)
+ - Eigen3
 
  Ubuntu packages can be installed via `InstallPackages`.
 
@@ -53,12 +54,16 @@ See `examples/` for an interactive demo.
   - `float`
   - `std::string`
   - `bool`
+  - `Eigen::Vector2f`
+  - `Eigen::Vector3f`
   - `vector<int>`
   - `vector<unsigned int>`
   - `vector<double>`
   - `vector<float>`
   - `vector<std::string>`
   - `vector<bool>`
+  - `vector<Eigen::Vector2f>`
+  - `vector<Eigen::Vector3f>`
 
  # Missing Variable Messages
 

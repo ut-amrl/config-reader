@@ -38,12 +38,16 @@ enum Type {
   CFLOAT,
   CSTRING,
   CBOOL,
+  CVECTOR2F,
+  CVECTOR3F,
   CINTLIST,
   CUINTLIST,
   CFLOATLIST,
   CDOUBLELIST,
   CSTRINGLIST,
   CBOOLLIST,
+  CVECTOR2FLIST,
+  CVECTOR3FLIST,
 };
 
 class TypeInterface {
@@ -63,6 +67,7 @@ class TypeInterface {
   std::string key_;
   Type type_;
 };
+
 }  // namespace config_types
 }  // namespace config_reader
 #endif  // CONFIGREADER_TYPES_TYPE_INTERFACE_H_

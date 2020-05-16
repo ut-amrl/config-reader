@@ -42,6 +42,9 @@ int main() {
   CONFIG_INTLIST(int_list, "int_list");
   CONFIG_DOUBLELIST(double_list, "double_list");
   CONFIG_BOOLLIST(bool_list, "bool_list");
+  CONFIG_VECTOR2F(sample_vector2f, "sample_vector2f");
+  CONFIG_VECTOR2FLIST(sample_vector2f_list, "sample_vector2f_list");
+  CONFIG_VECTOR2FLIST(wrapped_sample_vector2f_list, "wrapper.another.sample_vector2f_list");
   config_reader::ConfigReader reader({"test_config.lua"});
 
   Check(CONFIG_int_list.size() == 16);
@@ -61,6 +64,17 @@ int main() {
   Check(CONFIG_bool_list.size() == 2);
   Check(CONFIG_bool_list[0] == true);
   Check(CONFIG_bool_list[1] == false);
+
+  Check(CONFIG_sample_vector2f == Eigen::Vector2f(1.2, 3.4));
+
+  Check(CONFIG_sample_vector2f_list.size() == 2);
+  Check(CONFIG_sample_vector2f_list[0] == Eigen::Vector2f(1.2, 3.4));
+  Check(CONFIG_sample_vector2f_list[1] == Eigen::Vector2f(5.6, 7.8));
+
+  Check(CONFIG_wrapped_sample_vector2f_list.size() == 2);
+  Check(CONFIG_wrapped_sample_vector2f_list[0] == Eigen::Vector2f(9.1, 2.3));
+  Check(CONFIG_wrapped_sample_vector2f_list[1] == Eigen::Vector2f(4.5, 6.7));
+
 
   Check(CONFIG_seven == 7);
   Check(CONFIG_str == "str");

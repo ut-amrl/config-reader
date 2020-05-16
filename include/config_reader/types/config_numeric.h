@@ -24,10 +24,9 @@
 
 #include "config_reader/types/type_interface.h"
 
-namespace config_reader {
-namespace config_types {
-
 #define NUMERIC_CLASS(ClassName, EnumName, CPPType)                     \
+  namespace config_reader {                                             \
+  namespace config_types {                                              \
   class ClassName : public TypeInterface {                              \
    public:                                                              \
     ClassName(const std::string& key)                                   \
@@ -74,13 +73,17 @@ namespace config_types {
     CPPType upper_bound_;                                               \
     CPPType lower_bound_;                                               \
     CPPType val_;                                                       \
-  };
+  };                                                                    \
+  }                                                                     \
+  template <>                                                           \
+  inline CPPType GetDefaultValue<CPPType>() {                                  \
+    return 0;                                                           \
+  }                                                                     \
+  }
 
 NUMERIC_CLASS(ConfigInt, CINT, int);
 NUMERIC_CLASS(ConfigUnsignedInt, CUINT, unsigned int);
 NUMERIC_CLASS(ConfigFloat, CFLOAT, float);
 NUMERIC_CLASS(ConfigDouble, CDOUBLE, double);
 
-}  // namespace config_types
-}  // namespace config_reader
 #endif  // CONFIGREADER_TYPES_CONFIG_FLOAT_H_
