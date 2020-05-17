@@ -55,7 +55,7 @@
   };                                                                \
   }                                                                 \
   template <>                                                       \
-  CPPType GetDefaultValue<CPPType>() {                              \
+  inline CPPType GetDefaultValue<CPPType>() {                       \
     return DefaultValue;                                            \
   }                                                                 \
   }
