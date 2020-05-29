@@ -38,10 +38,12 @@
     ~ClassName() = default;                                         \
                                                                     \
     void SetValue(LuaScript* lua_script) override {                 \
-      const auto result = lua_script->GetVariable<CPPType>(key_);   \
-      if (result.first) {                                           \
-        val_ = result.second;                                       \
+      const auto result =                                           \
+          lua_script->GetVariable<CPPType>(key_, var_locations_);   \
+      if (!result.first) {                                          \
+        return;                                                     \
       }                                                             \
+      val_ = result.second;                                         \
     }                                                               \
                                                                     \
     const CPPType& GetValue() { return this->val_; }                \

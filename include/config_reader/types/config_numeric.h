@@ -51,7 +51,8 @@
     ~ClassName() = default;                                             \
                                                                         \
     void SetValue(LuaScript* lua_script) override {                     \
-      const auto result = lua_script->GetVariable<CPPType>(key_);       \
+      const auto result =                                               \
+          lua_script->GetVariable<CPPType>(key_, var_locations_);       \
       if (!result.first) {                                              \
         return;                                                         \
       }                                                                 \
@@ -76,7 +77,7 @@
   };                                                                    \
   }                                                                     \
   template <>                                                           \
-  inline CPPType GetDefaultValue<CPPType>() {                                  \
+  inline CPPType GetDefaultValue<CPPType>() {                           \
     return 0;                                                           \
   }                                                                     \
   }

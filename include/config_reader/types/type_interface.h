@@ -24,6 +24,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "config_reader/lua_script.h"
 
@@ -63,9 +64,12 @@ class TypeInterface {
   Type GetType() const { return type_; };
   virtual void SetValue(LuaScript* lua_script) = 0;
 
+  void AddVarLocation(const std::string& l) { var_locations_.push_back(l); }
+
  protected:
   std::string key_;
   Type type_;
+  std::vector<std::string> var_locations_;
 };
 
 }  // namespace config_types

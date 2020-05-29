@@ -73,13 +73,22 @@ class LuaScript {
 
   void ResetStack() { lua_pop(lua_state_, lua_gettop(lua_state_)); }
 
+  void Error(const std::string& variable_name, const std::string& reason,
+             const std::vector<std::string>& var_locations) const {
+    for (const auto& l : var_locations) {
+      std::cerr << l << ": Can't get [" << variable_name << "]. " << reason
+                << std::endl;
+    }
+  }
+
   void Error(const std::string& variable_name,
              const std::string& reason) const {
     std::cerr << "Error: can't get [" << variable_name << "]. " << reason
               << std::endl;
   }
 
-  bool LoadStackLocation(const std::string& variable_name) {
+  bool LoadStackLocation(const std::string& variable_name,
+                         const std::vector<std::string>& var_locations) {
     int level = 0;
     std::string var = "";
     for (size_t i = 0; i < variable_name.size(); i++) {
@@ -91,8 +100,8 @@ class LuaScript {
         }
 
         if (lua_isnil(lua_state_, -1)) {
-          if (!kDisableTopLevelMissingError) {
-            Error(variable_name, var + " is not defined");
+          if (!kDisableTopLevelMissingError || level > 0) {
+            Error(variable_name, var + " is not defined", var_locations);
           }
           return false;
         } else {
@@ -110,7 +119,7 @@ class LuaScript {
     }
     if (lua_isnil(lua_state_, -1)) {
       if (!kDisableTopLevelMissingError || level > 0) {
-        Error(variable_name, var + " is not defined");
+        Error(variable_name, var + " is not defined", var_locations);
       }
       return false;
     }
@@ -154,13 +163,15 @@ class LuaScript {
   ~LuaScript() { CleanupLuaState(); }
 
   template <typename T>
-  std::pair<bool, T> GetVariable(const std::string& variable_name) {
+  std::pair<bool, T> GetVariable(
+      const std::string& variable_name,
+      const std::vector<std::string>& var_locations) {
     if (lua_state_ == nullptr) {
-      Error(variable_name, "Script is not loaded");
+      Error(variable_name, "Script is not loaded", var_locations);
       return {false, GetDefault<T>()};
     }
 
-    if (!LoadStackLocation(variable_name)) {
+    if (!LoadStackLocation(variable_name, var_locations)) {
       ResetStack();
       return {false, GetDefault<T>()};
     }

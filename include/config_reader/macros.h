@@ -32,67 +32,40 @@
 #include "config_reader/types/type_interface.h"
 
 namespace config_reader {
+
+// Unfortunately these layered macros are needed to get __LINE__ to appear
+// properly.
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+#define LOCATION (__FILE__ ":" TOSTRING(__LINE__))
+
 #define MAKE_NAME(name) CONFIG_##name
 
-// Define macros for creating new config vars
+#define MAKE_MACRO(name, key, cpptype, configtype)                         \
+  const cpptype& MAKE_NAME(name) =                                         \
+      ::config_reader::InitVar<cpptype,                                    \
+                               ::config_reader::config_types::configtype>( \
+          key, LOCATION)
 
-#define CONFIG_INT(name, key)                                                  \
-  const int& MAKE_NAME(name) =                                                 \
-      ::config_reader::InitVar<int, ::config_reader::config_types::ConfigInt>( \
-          key)
-#define CONFIG_UINT(name, key)                                    \
-  const unsigned int& MAKE_NAME(name) = ::config_reader::InitVar< \
-      unsigned int, ::config_reader::config_types::ConfigUnsignedInt>(key)
-#define CONFIG_DOUBLE(name, key)                            \
-  const double& MAKE_NAME(name) = ::config_reader::InitVar< \
-      double, ::config_reader::config_types::ConfigDouble>(key)
-#define CONFIG_FLOAT(name, key)                            \
-  const float& MAKE_NAME(name) = ::config_reader::InitVar< \
-      float, ::config_reader::config_types::ConfigFloat>(key)
-#define CONFIG_STRING(name, key)                                 \
-  const std::string& MAKE_NAME(name) = ::config_reader::InitVar< \
-      std::string, ::config_reader::config_types::ConfigString>(key)
-#define CONFIG_BOOL(name, key)       \
-  const bool& MAKE_NAME(name) =      \
-      ::config_reader::InitVar<bool, \
-                               ::config_reader::config_types::ConfigBool>(key)
-#define CONFIG_INTLIST(name, key)                                     \
-  const std::vector<int>& MAKE_NAME(name) = ::config_reader::InitVar< \
-      std::vector<int>, ::config_reader::config_types::ConfigIntList>(key)
-#define CONFIG_UINTLIST(name, key)                                             \
-  const std::vector<unsigned int>& MAKE_NAME(name) = ::config_reader::InitVar< \
-      std::vector<unsigned int>,                                               \
-      ::config_reader::config_types::ConfigUnsignedIntList>(key)
-#define CONFIG_FLOATLIST(name, key)                                     \
-  const std::vector<float>& MAKE_NAME(name) = ::config_reader::InitVar< \
-      std::vector<float>, ::config_reader::config_types::ConfigFloatList>(key)
-#define CONFIG_DOUBLELIST(name, key)                                         \
-  const std::vector<double>& MAKE_NAME(name) = ::config_reader::InitVar<     \
-      std::vector<double>, ::config_reader::config_types::ConfigDoubleList>( \
-      key)
-#define CONFIG_STRINGLIST(name, key)                                          \
-  const std::vector<std::string>& MAKE_NAME(name) = ::config_reader::InitVar< \
-      std::vector<std::string>,                                               \
-      ::config_reader::config_types::ConfigStringList>(key)
-#define CONFIG_BOOLLIST(name, key)                                     \
-  const std::vector<bool>& MAKE_NAME(name) = ::config_reader::InitVar< \
-      std::vector<bool>, ::config_reader::config_types::ConfigBoolList>(key)
-#define CONFIG_VECTOR2F(name, key)                                   \
-  const Eigen::Vector2f& MAKE_NAME(name) = ::config_reader::InitVar< \
-      Eigen::Vector2f, ::config_reader::config_types::ConfigVector2f>(key)
-#define CONFIG_VECTOR3F(name, key)                                   \
-  const Eigen::Vector3f& MAKE_NAME(name) = ::config_reader::InitVar< \
-      Eigen::Vector3f, ::config_reader::config_types::ConfigVector3f>(key)
-#define CONFIG_VECTOR2FLIST(name, key)                  \
-  const std::vector<Eigen::Vector2f>& MAKE_NAME(name) = \
-      ::config_reader::InitVar<                         \
-          std::vector<Eigen::Vector2f>,                 \
-          ::config_reader::config_types::ConfigVector2fList>(key)
-#define CONFIG_VECTOR3FLIST(name, key)                  \
-  const std::vector<Eigen::Vector3f>& MAKE_NAME(name) = \
-      ::config_reader::InitVar<                         \
-          std::vector<Eigen::Vector3f>,                 \
-          ::config_reader::config_types::ConfigVector3fList>(key)
+// Define macros for creating new config vars
+// clang-format off
+#define CONFIG_INT(name, key) MAKE_MACRO(name, key, int, ConfigInt)
+#define CONFIG_UINT(name, key) MAKE_MACRO(name, key, unsigned int, ConfigUnsignedInt)
+#define CONFIG_DOUBLE(name, key) MAKE_MACRO(name, key, double, ConfigDouble)
+#define CONFIG_FLOAT(name, key) MAKE_MACRO(name, key, float, ConfigFloat)
+#define CONFIG_STRING(name, key) MAKE_MACRO(name, key, std::string, ConfigString)
+#define CONFIG_BOOL(name, key)  MAKE_MACRO(name, key, bool, ConfigBool)
+#define CONFIG_INTLIST(name, key)  MAKE_MACRO(name, key, std::vector<int>, ConfigIntList)
+#define CONFIG_UINTLIST(name, key) MAKE_MACRO(name, key, std::vector<unsigned int>, ConfigUnsignedIntList)
+#define CONFIG_FLOATLIST(name, key) MAKE_MACRO(name, key, std::vector<float>, ConfigFloatList)
+#define CONFIG_DOUBLELIST(name, key) MAKE_MACRO(name, key, std::vector<double>, ConfigDoubleList)
+#define CONFIG_STRINGLIST(name, key) MAKE_MACRO(name, key, std::vector<std::string>, ConfigStringList)
+#define CONFIG_BOOLLIST(name, key) MAKE_MACRO(name, key, std::vector<bool>, ConfigBoolList)
+#define CONFIG_VECTOR2F(name, key) MAKE_MACRO(name, key, Eigen::Vector2f, ConfigVector2f)
+#define CONFIG_VECTOR3F(name, key) MAKE_MACRO(name, key, Eigen::Vector3f, ConfigVector3f)
+#define CONFIG_VECTOR2FLIST(name, key) MAKE_MACRO(name, key, std::vector<Eigen::Vector2f>, ConfigVector2fList)
+#define CONFIG_VECTOR3FLIST(name, key) MAKE_MACRO(name, key, std::vector<Eigen::Vector3f>, ConfigVector3fList)
+// clang-format on
 
 class MapSingleton {
   static constexpr int kNumMapBuckets = 1000000;
@@ -119,7 +92,8 @@ class MapSingleton {
 };
 
 template <typename CPPType, typename ConfigType>
-const CPPType& InitVar(const std::string& key) {
+const CPPType& InitVar(const std::string& key,
+                       const std::string& var_location) {
   auto& map = MapSingleton::Singleton();
   auto find_res = map.find(key);
   if (find_res != map.end()) {
@@ -131,6 +105,7 @@ const CPPType& InitVar(const std::string& key) {
                 << std::endl;
       exit(1);
     }
+    ti->AddVarLocation(var_location);
     return static_cast<ConfigType*>(ti)->GetValue();
   }
   auto insert_res = map.insert(std::make_pair(
@@ -141,6 +116,7 @@ const CPPType& InitVar(const std::string& key) {
   }
   *MapSingleton::NewKeyAdded() = true;
   config_types::TypeInterface* ti = insert_res.first->second.get();
+  ti->AddVarLocation(var_location);
   return static_cast<ConfigType*>(ti)->GetValue();
 }
 }  // namespace config_reader
