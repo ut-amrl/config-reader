@@ -42,7 +42,7 @@ namespace config_reader {
 #define MAKE_NAME(name) CONFIG_##name
 
 #define MAKE_MACRO(name, key, cpptype, configtype)                         \
-  const cpptype& MAKE_NAME(name) =                                         \
+  static const cpptype& MAKE_NAME(name) =                                  \
       ::config_reader::InitVar<cpptype,                                    \
                                ::config_reader::config_types::configtype>( \
           key, LOCATION)
