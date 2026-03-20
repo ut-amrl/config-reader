@@ -30,6 +30,7 @@ extern "C" {
 }
 
 #include <algorithm>
+#include <array>
 #include <atomic>
 #include <fstream>
 #include <memory>

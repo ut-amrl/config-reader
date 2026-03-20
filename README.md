@@ -40,7 +40,7 @@ See `examples/` for an interactive demo.
 
 # Dependencies
 
- - Lua 5.1 Development Package
+ - Lua 5.2 Development Package
  - C++ compiler with C++ 11 support (e.g. `clang++`)
  - Eigen3
 

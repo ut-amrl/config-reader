@@ -28,9 +28,9 @@
 #include <vector>
 
 extern "C" {
-#include "lua5.1/lauxlib.h"
-#include "lua5.1/lua.h"
-#include "lua5.1/lualib.h"
+#include "lua5.2/lauxlib.h"
+#include "lua5.2/lua.h"
+#include "lua5.2/lualib.h"
 }
 
 static constexpr bool kDisableTopLevelMissingError = true;
@@ -200,7 +200,7 @@ class LuaScript {
       Error(variable_name, "Not a std::vector<Type>");                     \
       return GetDefault<std::vector<Type>>();                              \
     }                                                                      \
-    const int table_length = static_cast<int>(lua_objlen(lua_state_, -1)); \
+    const int table_length = static_cast<int>(lua_rawlen(lua_state_, -1)); \
     std::vector<Type> data;                                                \
     for (int i = 1; i <= table_length; ++i) {                              \
       lua_pushinteger(lua_state_, i);                                      \
@@ -223,7 +223,7 @@ class LuaScript {
       Error(variable_name, "Not a std::vector<Type>");                     \
       return GetDefault<std::vector<Type>>();                              \
     }                                                                      \
-    const int table_length = static_cast<int>(lua_objlen(lua_state_, -1)); \
+    const int table_length = static_cast<int>(lua_rawlen(lua_state_, -1)); \
     std::vector<Type> data;                                                \
     for (int i = 1; i <= table_length; ++i) {                              \
       lua_pushinteger(lua_state_, i);                                      \
@@ -276,7 +276,7 @@ inline std::vector<std::string> LuaScript::Get<std::vector<std::string>>(
     Error(variable_name, "Not a std::vector<std::string>");
     return GetDefault<std::vector<std::string>>();
   }
-  const int table_length = static_cast<int>(lua_objlen(lua_state_, -1));
+  const int table_length = static_cast<int>(lua_rawlen(lua_state_, -1));
   std::vector<std::string> data;
   for (int i = 1; i <= table_length; ++i) {
     lua_pushinteger(lua_state_, i);
@@ -298,7 +298,7 @@ inline std::vector<bool> LuaScript::Get<std::vector<bool>>(
     Error(variable_name, "Not a std::vector<bool>");
     return GetDefault<std::vector<bool>>();
   }
-  const int table_length = static_cast<int>(lua_objlen(lua_state_, -1));
+  const int table_length = static_cast<int>(lua_rawlen(lua_state_, -1));
   std::vector<bool> data;
   for (int i = 1; i <= table_length; ++i) {
     lua_pushinteger(lua_state_, i);
@@ -320,7 +320,7 @@ inline Eigen::Vector2f LuaScript::Get<Eigen::Vector2f>(
     Error(variable_name, "Not a std::vector<bool>");
     return GetDefault<Eigen::Vector2f>();
   }
-  const int table_length = static_cast<int>(lua_objlen(lua_state_, -1));
+  const int table_length = static_cast<int>(lua_rawlen(lua_state_, -1));
   if (table_length != 2) {
     Error(variable_name, "Wrong number of entries for Vector2f (" +
                              std::to_string(table_length) + ")");
@@ -347,7 +347,7 @@ inline Eigen::Vector3f LuaScript::Get<Eigen::Vector3f>(
     Error(variable_name, "Not a std::vector<bool>");
     return GetDefault<Eigen::Vector3f>();
   }
-  const int table_length = static_cast<int>(lua_objlen(lua_state_, -1));
+  const int table_length = static_cast<int>(lua_rawlen(lua_state_, -1));
   if (table_length != 3) {
     Error(variable_name, "Wrong number of entries for Vector3f (" +
                              std::to_string(table_length) + ")");
